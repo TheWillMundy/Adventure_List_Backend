@@ -12,12 +12,12 @@ const getUsers = (req, res) => {
         res.send(users)
       }
     }
-  )  
+  )
 }
 
 const addUser = (req, res) => {
   let name = req.body.name;
-  User.create({name: name, adv_list: []}, 
+  User.create({name: name, adv_list: []},
     (err, result) => {
       if (err) {res.send({"error": "An error has occurred"})}
       else {
@@ -38,7 +38,7 @@ const removeUser = (req, res) => {
 }
 
 const clearUsers = (req, res) => {
-  User.remove({}, 
+  User.remove({},
     (err, result) => {
       if (err) {res.send({"error": "An error has occurred"})}
       else {

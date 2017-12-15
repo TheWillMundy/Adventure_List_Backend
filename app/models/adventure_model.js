@@ -5,7 +5,15 @@ var mongoose     = require('mongoose')
 require('../../config/db')
 
 var AdventureSchema = mongoose.Schema({
-    title:{type: String}
+    title:{type: String},
+    postedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    followedBy: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }]
 })
 
 

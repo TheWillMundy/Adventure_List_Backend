@@ -1,28 +1,45 @@
 // In Express, routes are wrapped as functions
 
 const Adventure = require('../models/adventure_model').adventure
+const User = require('../models/user_model').user
 
 //Functions
-//Functions
 const getAdventures = (req, res) => {
-  Adventure.find({},
-    (err, adventures) => {
-      if (err) {res.send({'error': "An error has occurred"})}
-      else {
-        res.send(adventures)
-      }
-    }
-  )  
+  Adventure.find({})
+    .populate({path: 'postedBy', select: '-password'})
+    .exec(
+      (err, adventures) => {
+        if (err) {res.send({'error': "An error has occurred"})}
+        else {
+          res.send(adventures)
+        }
+    })
 }
 
 const addAdventure = (req, res) => {
   let title = req.body.title;
-  Adventure.create({title: title}, 
-    (err, result) => {
-      if (err) {res.send({"error": "An error has occurred"})}
-      else {
-        res.send(result._id)
-      }
+  let poster = req.body.email;
+  User.find({email: poster}, (err, user) => {
+    if (err) {res.send({'error': "An error has occurred"})}
+    else {
+      let poster_id = user[0]._id
+      Adventure.create({title: title, postedBy: poster_id},
+        (err, result) => {
+          if (err) {res.send({"error": "An error has occurred"})}
+          else {
+            Adventure.findOne({title})
+            .populate({path: 'postedBy', select: '-password'})
+            .exec(
+              (err, adventure) => {
+                if (err) {res.send({"error": "An error has occurred"})}
+                else {
+                  res.send(adventure)
+                }
+              }
+            )
+          }
+      })
+    }
   })
 }
 
@@ -38,7 +55,7 @@ const removeAdventure = (req, res) => {
 }
 
 const clearAdventures = (req, res) => {
-  Adventure.remove({}, 
+  Adventure.remove({},
     (err, result) => {
       if (err) {res.send({"error": "An error has occurred"})}
       else {

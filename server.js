@@ -9,8 +9,9 @@ const app            = express();
 const port = 8000;
 
 //Enables us to read req.body
-// app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser());
+// app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
 
 //Enable CORS
 const enableCORS = function(req, res, next) {
@@ -31,10 +32,10 @@ app.use(enableCORS)
 //   if (err) return console.log(err)
 //   //Routes are accessible through server.js now
 //   require('./app/routes')(app, database);
-// 
+//
 //   app.listen(port, () => {
 //     console.log('We are live on ' + port);
-//   });               
+//   });
 // })
 
 //Connect to MongoDB through Mongoose
