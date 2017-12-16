@@ -2,11 +2,12 @@
 
 const Adventure = require('../models/adventure_model').adventure
 const User = require('../models/user_model').user
+var ObjectId = require('mongoose').Types.ObjectId;
 
 //Functions
 const getAdventures = (req, res) => {
   Adventure.find({})
-    .populate({path: 'postedBy', select: '-password'})
+    .populate({path: 'postedBy followedBy', select: '-password'})
     .exec(
       (err, adventures) => {
         if (err) {res.send({'error': "An error has occurred"})}
@@ -43,6 +44,59 @@ const addAdventure = (req, res) => {
   })
 }
 
+const followAdventure = (req, res) => {
+  let id = req.params.id;
+  console.log(req.body.email)
+  User.findOne({email: req.body.email}, (err, user) => {
+    Adventure.update({_id: id}, {$push: {followedBy: user}}, (err, adventure) => {
+      if (err) { res.send({"error": "FindOneAndUpdate error has occurred"}) }
+      else {
+        Adventure.findOne({_id: id})
+        .populate({path: 'postedBy followedBy', select: '-password'})
+        .exec(
+          (err, adventure) => {
+            console.log(adventure)
+            if (err) {res.send({"error": "An error has occurred."})}
+            else {
+              return res.send(adventure)
+            }
+          }
+        )
+      }
+    })
+  });
+}
+
+const unfollowAdventure = (req, res) => {
+  let id = req.params.id
+  User.findOne({email: req.body.email}, (err, user) => {
+    if (err) { res.send({"error": "User error has occurred."}) }
+    else {
+      Adventure.findById(id, (err, adventure) => {
+        if (err) {console.log(err); res.send({"error": "Update error has occurred."})}
+        else {
+          adventure.followedBy.pull(user._id)
+          adventure.save((err) => {
+            if (err) {res.send({"error": "An error has occurred."})}
+            else {
+              Adventure.findOne({_id: id})
+              .populate({path: 'postedBy followedBy', select: '-password'})
+              .exec(
+                (err, adventure) => {
+                  if (err) {res.send({"error": "An error has occurred."})}
+                  else {
+                    return res.send(adventure)
+                  }
+                }
+              )
+            }
+          })
+        }
+      })
+    }
+  });
+}
+
 const removeAdventure = (req, res) => {
   let id = req.params.id;
   Adventure.remove({_id: id},
@@ -68,6 +122,8 @@ const clearAdventures = (req, res) => {
 module.exports = function(app, db) {
   app.get('/adventures', getAdventures);
   app.post('/adventures', addAdventure);
+  app.post('/adventures/:id', followAdventure);
+  app.post('/adventures/unfollow/:id', unfollowAdventure);
   app.delete('/adventures', clearAdventures);
   app.delete('/adventures/:id', removeAdventure);
 };
