@@ -22,13 +22,12 @@ const localLogin = new LocalStrategy({usernameField: 'email', passwordField: 'pa
 
 // JWT Auth Options
 const jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('JWT'),
   secretOrKey: config.secret
 };
 
 //Set up JWT Login Strategy
 const jwtLogin = new JwtStrategy(jwtOptions, (payload, done) => {
-  console.log(payload)
   User.findById(payload._id, (err, user) => {
     if (err) { return done(err, false); }
 

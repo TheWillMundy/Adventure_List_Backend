@@ -4,6 +4,10 @@ const Adventure = require('../models/adventure_model').adventure
 const User = require('../models/user_model').user
 var ObjectId = require('mongoose').Types.ObjectId;
 
+// For JWT Authentication
+const passport = require('passport');
+const requireAuth = passport.authenticate('jwt', {session: false});
+
 //Functions
 const getAdventures = (req, res) => {
   Adventure.find({})
@@ -120,7 +124,8 @@ const clearAdventures = (req, res) => {
 
 //Export Routes
 module.exports = function(app, db) {
-  app.get('/adventures', getAdventures);
+  app.use('/adventures/', requireAuth);
+  app.get('/all_adventures', getAdventures);
   app.post('/adventures', addAdventure);
   app.post('/adventures/:id', followAdventure);
   app.post('/adventures/unfollow/:id', unfollowAdventure);

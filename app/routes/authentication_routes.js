@@ -5,6 +5,7 @@ const AuthenticationController = require('../controllers/authentication'),
 
 const requireAuth = passport.authenticate('jwt', {session: false});
 const requireLogin = passport.authenticate('local', {session: false});
+// Protected Test
 
 module.exports = function(app, db) {
 
@@ -16,4 +17,6 @@ module.exports = function(app, db) {
   // Login route
   app.post('/login', requireLogin, AuthenticationController.login);
 
+  // Protected Test route
+  app.get('/protected', requireAuth, (req, res) => {res.status(200).send("Hello!")})
 };
